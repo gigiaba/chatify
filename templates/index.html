@@ -1,172 +1,198 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<<<<<<< HEAD
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{{ title }}</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ title }}</title>
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 
-    <style>
-        body {
-            background-color: #f4f1ec;
-            font-family: 'Segoe UI', sans-serif;
-            color: #4b2e2e;
-        }
+  <!-- Bootstrap Icons -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+  />
 
-        h1, h2 {
-            color: #5c4033;
-        }
+  <style>
+    body {
+      background-color: #f4f1ec;
+      font-family: 'Segoe UI', sans-serif;
+      color: #4b2e2e;
+    }
 
-        .btn-brown {
-            background-color: #7b4f3d;
-            color: #fff;
-        }
+    /* Navbar brown */
+    .navbar-brown {
+      background-color: #7b4f3d;
+    }
 
-        .btn-brown:hover {
-            background-color: #5c4033;
-        }
+    .navbar-brown .navbar-brand,
+    .navbar-brown .nav-link {
+      color: #fff;
+    }
 
-        .card {
-            background-color: #fffaf5;
-            border: 1px solid #d6cfc7;
-        }
+    .navbar-brown .nav-link:hover,
+    .navbar-brown .nav-link:focus {
+      color: #d6cfc7;
+    }
 
-        .card-text {
-            color: #3d2a24;
-        }
+    h1, h2 {
+      color: #5c4033;
+    }
 
-        .media-preview {
-            max-width: 250px;
-            max-height: 180px;
-            border-radius: 6px;
-        }
+    .btn-brown {
+      background-color: #7b4f3d;
+      color: #fff;
+    }
 
-        .form-control, textarea {
-            border-color: #d6cfc7;
-        }
+    .btn-brown:hover {
+      background-color: #5c4033;
+    }
 
-        .form-label {
-            color: #5c4033;
-        }
+    .card {
+      background-color: #fffaf5;
+      border: 1px solid #d6cfc7;
+    }
 
-        .alert {
-            border-radius: 5px;
-        }
-    </style>
+    .card-text {
+      color: #3d2a24;
+    }
+
+    .media-preview {
+      max-width: 250px;
+      max-height: 180px;
+      border-radius: 6px;
+    }
+
+    .form-control,
+    textarea {
+      border-color: #d6cfc7;
+    }
+
+    .form-label {
+      color: #5c4033;
+    }
+
+    .alert {
+      border-radius: 5px;
+    }
+  </style>
 </head>
 <body>
-    <div class="container my-5">
-        <h1 class="text-center mb-4">Welcome to Chatify!</h1>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-brown">
+    <div class="container">
+      <a class="navbar-brand" href="{{ url_for('home') }}">Chatify</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarNav"
+        aria-controls="navbarNav"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          {% if current_user %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('profile', username=current_user.username) }}">
+              <i class="bi bi-person-circle"></i> Profile
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+          </li>
+          {% else %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('register') }}">Register</a>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container my-5">
+    <h1 class="text-center mb-4">Welcome to Chatify!</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% if current_user %}
+    <form method="POST" action="{{ url_for('post') }}" enctype="multipart/form-data" class="mb-5">
+      <div class="mb-3">
+        <label for="content" class="form-label">Your Post</label>
+        <textarea id="content" name="content" class="form-control" placeholder="What's on your mind?" rows="3"></textarea>
+      </div>
+
+      <div class="mb-3">
+        <label for="mediaInput" class="form-label">Upload Image or Video</label>
+        <input class="form-control" type="file" id="mediaInput" name="media" accept="image/*,video/*" />
+      </div>
+
+      <button type="submit" class="btn btn-brown">Post</button>
+    </form>
+    {% else %}
+    <p>Please <a href="{{ url_for('login') }}">login</a> to post content.</p>
+    {% endif %}
+
+    <h2 class="mb-3">Posts</h2>
+
+    {% for post in posts %}
+    <div class="card mb-4 p-3">
+      <div class="card-body">
+        {% if post.content %}
+        <p class="card-text">{{ post.content }}</p>
+        {% endif %}
+
+        {% if post.media_filename %}
+          {% set ext = post.media_filename.rsplit('.', 1)[1].lower() %}
+          {% if ext in ['mp4', 'mov', 'avi', 'webm'] %}
+            <video class="media-preview" controls>
+              <source src="{{ url_for('static', filename='uploads/' ~ post.media_filename) }}" type="video/{{ ext }}">
+              Your browser does not support the video tag.
+            </video>
+          {% else %}
+            <img src="{{ url_for('static', filename='uploads/' ~ post.media_filename) }}" alt="media" class="media-preview" />
+          {% endif %}
+        {% endif %}
+
+        <p class="mt-2"><small class="text-muted">Posted by: {{ post.author.username }}</small></p>
 
         {% if current_user %}
-            <form method="POST" action="{{ url_for('post') }}" enctype="multipart/form-data" class="mb-5">
-                <div class="mb-3">
-                    <label for="content" class="form-label">Your Post</label>
-                    <textarea id="content" name="content" class="form-control" placeholder="What's on your mind?" rows="3"></textarea>
-                </div>
-
-                <div class="mb-3">
-                    <label for="mediaInput" class="form-label">Upload Image or Video</label>
-                    <input class="form-control" type="file" id="mediaInput" name="media" accept="image/*,video/*" />
-                </div>
-
-                <button type="submit" class="btn btn-brown">Post</button>
-=======
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
-    <div class="container">
-        <h1>Welcome to Chatify!</h1>
-        
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="flash flash-{{ category }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        
-        {% if 'user_id' in session %}
-            <form method="POST" action="{{ url_for('post') }}">
-                <textarea name="content" placeholder="What's on your mind?" required></textarea>
-                <button type="submit">Post</button>
->>>>>>> 465435266183c03591ef044b2e533ae712f10245
-            </form>
+        <form method="POST" action="{{ url_for('react', post_id=post.id) }}" class="mt-2 d-inline">
+          {% set liked = current_user.id in post.reactions | map(attribute='user_id') | list %}
+          <button type="submit" class="btn btn-sm {{ 'btn-danger' if liked else 'btn-outline-secondary' }}">
+            {{ 'Unlike ❤️' if liked else 'Like 🤍' }}
+          </button>
+        </form>
+        <span class="ms-2 text-muted">{{ post.reactions|length }} like{{ 's' if post.reactions|length != 1 }}</span>
         {% else %}
-            <p>Please <a href="{{ url_for('login') }}">login</a> to post content.</p>
+        <p class="text-muted mt-2"><em>Login to like this post.</em></p>
         {% endif %}
-<<<<<<< HEAD
-
-        <h2 class="mb-3">Posts</h2>
-
-        {% for post in posts %}
-            <div class="card mb-4 p-3">
-                <div class="card-body">
-                    {% if post.content %}
-                        <p class="card-text">{{ post.content }}</p>
-                    {% endif %}
-
-                    {% if post.media_filename %}
-                        {% set ext = post.media_filename.rsplit('.', 1)[1].lower() %}
-                        {% if ext in ['mp4', 'mov', 'avi', 'webm'] %}
-                            <video class="media-preview" controls>
-                                <source src="{{ url_for('static', filename='uploads/' ~ post.media_filename) }}" type="video/{{ ext }}">
-                                Your browser does not support the video tag.
-                            </video>
-                        {% else %}
-                            <img src="{{ url_for('static', filename='uploads/' ~ post.media_filename) }}" alt="media" class="media-preview" />
-                        {% endif %}
-                    {% endif %}
-
-                    <p class="mt-2"><small class="text-muted">Posted by: {{ post.author.username }}</small></p>
-
-                    {% if current_user %}
-                        <form method="POST" action="{{ url_for('react', post_id=post.id) }}" class="mt-2 d-inline">
-                            {% set liked = current_user.id in post.reactions | map(attribute='user_id') | list %}
-                            <button type="submit" class="btn btn-sm {{ 'btn-danger' if liked else 'btn-outline-secondary' }}">
-                                {{ 'Unlike ❤️' if liked else 'Like 🤍' }}
-                            </button>
-                        </form>
-                        <span class="ms-2 text-muted">{{ post.reactions|length }} like{{ 's' if post.reactions|length != 1 }}</span>
-                    {% else %}
-                        <p class="text-muted mt-2"><em>Login to like this post.</em></p>
-                    {% endif %}
-                </div>
-            </div>
-        {% else %}
-            <p>No posts yet.</p>
-        {% endfor %}
+      </div>
     </div>
+    {% else %}
+    <p>No posts yet.</p>
+    {% endfor %}
+  </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-=======
-        
-        <h2>Posts</h2>
-        {% for post in posts %}
-            <div class="post">
-                <p>{{ post.content }}</p>
-                <small>Posted by: {{ post.username }} on {{ post.created_at }}</small>
-            </div>
-        {% endfor %}
-    </div>
->>>>>>> 465435266183c03591ef044b2e533ae712f10245
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -148,7 +148,17 @@ def react(post_id):
     db.session.commit()
     return redirect(url_for('home'))
 
-# Initialize DB (creates tables without dropping)
+@app.route('/profile/<username>')
+def profile(username):
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        flash('User not found.', 'danger')
+        return redirect(url_for('home'))
+
+    posts = Post.query.filter_by(user_id=user.id).order_by(Post.id.desc()).all()
+    return render_template('profile.html', user=user, posts=posts, title=f"{username}'s Profile - Chatify")
+
+# Initialize DB
 with app.app_context():
     db.create_all()
 

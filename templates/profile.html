@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ user.username }}'s Profile - Chatify</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <!-- Bootstrap Icons -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+  />
+
+  <style>
+    body {
+      background-color: #f4f1ec;
+      font-family: 'Segoe UI', sans-serif;
+      color: #4b2e2e;
+    }
+
+    /* Navbar brown */
+    .navbar-brown {
+      background-color: #7b4f3d;
+    }
+
+    .navbar-brown .navbar-brand,
+    .navbar-brown .nav-link,
+    .navbar-brown .dropdown-menu {
+      color: #fff;
+    }
+
+    .navbar-brown .nav-link:hover,
+    .navbar-brown .nav-link:focus,
+    .navbar-brown .dropdown-menu a.dropdown-item:hover {
+      color: #d6cfc7;
+      background-color: transparent;
+    }
+
+    /* Override dropdown-menu bg */
+    .navbar-brown .dropdown-menu {
+      background-color: #7b4f3d;
+      border: none;
+      min-width: 200px;
+    }
+
+    h1, h2 {
+      color: #5c4033;
+    }
+
+    .card {
+      background-color: #fffaf5;
+      border: 1px solid #d6cfc7;
+    }
+
+    .card-text {
+      color: #3d2a24;
+    }
+
+    img.media-preview {
+      max-width: 250px;
+      max-height: 180px;
+      border-radius: 6px;
+    }
+
+    .btn-brown {
+      background-color: #7b4f3d;
+      color: #fff;
+    }
+
+    .btn-brown:hover {
+      background-color: #5c4033;
+      color: #fff;
+    }
+
+    /* Friend request buttons */
+    .friend-btn {
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-brown">
+    <div class="container">
+      <a class="navbar-brand" href="{{ url_for('home') }}">Chatify</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarNav"
+        aria-controls="navbarNav"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto align-items-center">
+          {% if current_user %}
+          <li class="nav-item dropdown me-3">
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="friendsDropdown"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <i class="bi bi-people-fill"></i> Friends
+              {% if current_user.friend_requests_received|length > 0 %}
+                <span class="badge bg-danger ms-1">{{ current_user.friend_requests_received|length }}</span>
+              {% endif %}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="friendsDropdown">
+              <li class="dropdown-header text-white">Friend Requests</li>
+              {% if current_user.friend_requests_received %}
+                {% for req in current_user.friend_requests_received %}
+                  <li class="px-3 py-2 d-flex justify-content-between align-items-center">
+                    <span>{{ req.sender.username }}</span>
+                    <div>
+                      <form method="POST" action="{{ url_for('respond_friend_request', request_id=req.id, action='accept') }}" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-success friend-btn">Accept</button>
+                      </form>
+                      <form method="POST" action="{{ url_for('respond_friend_request', request_id=req.id, action='decline') }}" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-danger">Decline</button>
+                      </form>
+                    </div>
+                  </li>
+                {% endfor %}
+              {% else %}
+                <li class="dropdown-item text-white">No friend requests</li>
+              {% endif %}
+              <li><hr class="dropdown-divider"></li>
+
+              <li class="dropdown-header text-white">Your Friends</li>
+              {% if current_user.friends %}
+                {% for friend in current_user.friends %}
+                  <li>
+                    <a class="dropdown-item" href="{{ url_for('profile', username=friend.username) }}">
+                      {{ friend.username }}
+                    </a>
+                  </li>
+                {% endfor %}
+              {% else %}
+                <li class="dropdown-item text-white">You have no friends</li>
+              {% endif %}
+            </ul>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('profile', username=current_user.username) }}">
+              <i class="bi bi-person-circle"></i> Profile
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+          </li>
+          {% else %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('register') }}">Register</a>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container my-5">
+    <header class="mb-4">
+      <h1>{{ user.username }}'s Profile</h1>
+      {% if user.email %}
+        <p>Email: {{ user.email }}</p>
+      {% endif %}
+      {% if user.joined_date %}
+        <p>Joined: {{ user.joined_date }}</p>
+      {% endif %}
+    </header>
+
+    <main>
+      <h2>Posts</h2>
+      {% if posts %}
+        {% for post in posts %}
+        <div class="card mb-3 p-3">
+          <div class="card-body">
+            {% if post.content %}
+              <p class="card-text">{{ post.content }}</p>
+            {% endif %}
+            {% if post.media_filename %}
+              {% set ext = post.media_filename.rsplit('.', 1)[1].lower() %}
+              {% if ext in ['mp4', 'mov', 'avi', 'webm'] %}
+                <video class="media-preview" controls>
+                  <source src="{{ url_for('static', filename='uploads/' ~ post.media_filename) }}" type="video/{{ ext }}">
+                  Your browser does not support the video tag.
+                </video>
+              {% else %}
+                <img src="{{ url_for('static', filename='uploads/' ~ post.media_filename) }}" alt="Post media" class="media-preview" />
+              {% endif %}
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <p>No posts yet.</p>
+      {% endif %}
+
+      {% if current_user and current_user.username != user.username %}
+        <div class="mt-4">
+          {% set is_friend = user in current_user.friends %}
+          {% set sent_request = user in current_user.friend_requests_sent|map(attribute='receiver') %}
+          {% set received_request = user in current_user.friend_requests_received|map(attribute='sender') %}
+          
+          {% if is_friend %}
+            <p>You and {{ user.username }} are friends.</p>
+          {% elif sent_request %}
+            <p>Friend request sent. Awaiting response.</p>
+          {% elif received_request %}
+            <form method="POST" action="{{ url_for('respond_friend_request', request_id=current_user.friend_requests_received|selectattr('sender', 'equalto', user)|first.id, action='accept') }}" class="d-inline">
+              <button type="submit" class="btn btn-brown friend-btn">Accept Friend Request</button>
+            </form>
+            <form method="POST" action="{{ url_for('respond_friend_request', request_id=current_user.friend_requests_received|selectattr('sender', 'equalto', user)|first.id, action='decline') }}" class="d-inline">
+              <button type="submit" class="btn btn-outline-danger">Decline Friend Request</button>
+            </form>
+          {% else %}
+            <form method="POST" action="{{ url_for('send_friend_request', username=user.username) }}">
+              <button type="submit" class="btn btn-brown">Send Friend Request</button>
+            </form>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      <a href="{{ url_for('home') }}" class="btn btn-brown mt-3">Back to Home</a>
+    </main>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
